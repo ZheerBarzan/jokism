@@ -8,7 +8,12 @@
 import Foundation
 
 struct Joke : Codable, Identifiable{
-    var id: ObjectIdentifier
     
+    let id: String
+    let content: String
     
+    init(id: String = UUID().uuidString, content: String) {
+        self.id = id
+        self.content = content
+    }
 }
