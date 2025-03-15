@@ -13,9 +13,13 @@ class JokeViewModel: Observable{
     @Published var joke : Joke?
     @Published var isLoading = false
     @Published var favoriates: [Joke] = []
+    @AppStorage("favoriteJokes") private var favoriteJokesData: Data? // Stores liked jokes
     private let jokeService = JokeService()
-    private var seenJokes: set<String> = []
+    private var seenJokes: Set<String> = []
     
+    init(){
+        loadFavoriates()
+    }
     func getNewJoke() async {
         isLoading = true
         
@@ -27,4 +31,22 @@ class JokeViewModel: Observable{
         }
         isLoading = false
     }
+    
+    func likeJoke(){
+        
+    }
+    
+    private func saveFavoriate(){
+        
+    }
+    
+    private func loadFavoriates(){
+        
+        
+    }
+    
+    func shareJoke(){
+        
+    }
 }
+    
