@@ -24,8 +24,13 @@ class JokeViewModel: Observable{
         isLoading = true
         
         do{
-            let newJoke = try await jokeService.fetchJoke()
+            var newJoke: Joke
+            repeat{
+                newJoke = try await jokeService.fetchJoke()
+            } while seenJokes.contains(newJoke.id)
+            
             joke = newJoke
+            seenJokes.insert(newJoke.id)
         }catch{
             joke = Joke(content: "Failed to get joke try again!")
         }
@@ -33,20 +38,28 @@ class JokeViewModel: Observable{
     }
     
     func likeJoke(){
+        guard let joke = joke, !favoriates.contains(where: {$0.id == joke.id}) else { return }
+        favoriates.append(joke)
+        saveFavoriate()
+        
         
     }
     
     private func saveFavoriate(){
-        
+        if let encoded = try? JSONEncoder().encode(favoriates){
+            favoriteJokesData = encoded
+        }
     }
     
     private func loadFavoriates(){
-        
-        
+        if let data = favoriteJokesData, let decoded = try? JSONDecoder().decode([Joke].self, from: data){
+            favoriates = decoded
+        }
     }
     
-    func shareJoke(){
-        
+    func shareJoke() -> String{
+        guard let joke = joke else { return "" }
+        return "\"\(joke.content)\" - via Jokism App 😆"
     }
 }
     

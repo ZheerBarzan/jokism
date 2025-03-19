@@ -9,9 +9,23 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        ZStack{
+        TabView{
+            FavoraitesJokeView()
+                .tabItem {
+                    Label("Favorites", systemImage: "Heart.fill")
+                }
+            JokeView()
+                .tabItem {
+                    Label("Jokes", systemImage: "Smiley")
+                }
+            SettingsView()
+                .tabItem{
+                    Label("Settings", systemImage: "Gear")
+                }
             
         }
+        
+
     }
 }
 
