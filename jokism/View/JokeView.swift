@@ -27,7 +27,7 @@ struct JokeView: View {
                         DragGesture()
                             .onEnded { gesture in
                                 if gesture.translation.width > 100{
-                                    task{ await jokeViewModel.getNewJoke() }
+                                    Task{ await jokeViewModel.getNewJoke() }
                                 }
                             }
                     )
