@@ -8,8 +8,40 @@
 import SwiftUI
 
 struct JokeView: View {
+    @StateObject private var jokeViewModel = JokeViewModel()
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack{
+            Spacer()
+            
+            if let joke = jokeViewModel.joke{
+                Text(joke.content)
+                    .font(.title2)
+                    .padding()
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .gesture(
+                        DragGesture()
+                            .onEnded { gesture in
+                                if gesture.translation.width > 100{
+                                    task{ await jokeViewModel.getNewJoke() }
+                                }
+                            }
+                    )
+                
+            }else{
+                ProgressView("Cooking up some jokes...")
+            }
+            Spacer()
+            
+            
+            HStack{
+                
+            }
+        }
     }
 }
 

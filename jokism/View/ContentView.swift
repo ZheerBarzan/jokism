@@ -12,15 +12,15 @@ struct ContentView: View {
         TabView{
             FavoraitesJokeView()
                 .tabItem {
-                    Label("Favorites", systemImage: "Heart.fill")
+                    Label("Favorites", systemImage: "heart.fill")
                 }
             JokeView()
                 .tabItem {
-                    Label("Jokes", systemImage: "Smiley")
+                    Label("Jokes", systemImage: "smiley")
                 }
             SettingsView()
                 .tabItem{
-                    Label("Settings", systemImage: "Gear")
+                    Label("Settings", systemImage: "gear")
                 }
             
         }
