@@ -40,9 +40,45 @@ struct JokeView: View {
             
             HStack{
                 
+                Button(action: {
+                    jokeViewModel.likeJoke()
+                }, label: {
+                    Image(systemName: "heart.fill")
+                        .font(.title)
+                        .foregroundColor(.red)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                        .shadow(radius: 5)
+                        
+                })
+                
+                //Spacer()
+                
+                Button(action: {
+                    shareJoke
+                },label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.title)
+                        .foregroundColor(.blue)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                        .shadow(radius: 5)
+                    
+                })
             }
+            .padding(.horizontal,50)
+        }
+        .onAppear{
+            Task{ await jokeViewModel.getNewJoke() }
         }
     }
+    
+    private func shareJoke(){
+        let text = jokeViewModel.shareJoke()
+        let activityViewContorller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let
 }
 
 #Preview {
