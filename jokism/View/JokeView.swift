@@ -56,7 +56,7 @@ struct JokeView: View {
                 //Spacer()
                 
                 Button(action: {
-                    shareJoke
+                    shareJoke()
                 },label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.title)
@@ -78,7 +78,11 @@ struct JokeView: View {
     private func shareJoke(){
         let text = jokeViewModel.shareJoke()
         let activityViewContorller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
-        if let
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene{
+            scene.windows.first?.rootViewController?.present(activityViewContorller, animated: true, completion: nil)
+        }
+    }
+           
 }
 
 #Preview {
