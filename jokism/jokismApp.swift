@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct jokismApp: App {
+    @StateObject private var jokeViewModel = JokeViewModel()
+    @AppStorage("dark_mode") private var isDarkMode: Bool = false
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LaunchScreen()
+                .environmentObject(jokeViewModel)
+                .preferredColorScheme(isDarkMode ? .dark : .light)
+            
         }
     }
 }
