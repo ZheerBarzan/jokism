@@ -93,4 +93,15 @@ class JokeViewModel: ObservableObject {
         guard let joke = joke else { return "" }
         return "\"\(joke.content)\" - via Jokism App 😆"
     }
+    
+    func removeFavorite(_ joke: Joke) {
+        favorites.removeAll { $0.id == joke.id }
+        saveFavorites()
+    }
+    // Add this method to your JokeViewModel class
+@MainActor
+func updateFavorites(_ newFavorites: [Joke]) {
+    favorites = newFavorites
+    saveFavorites()
+}
 }

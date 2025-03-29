@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct JokeView: View {
-    @StateObject private var jokeViewModel = JokeViewModel()
+    @StateObject private var sharedVM = SharedViewModel.shared
     @State private var offset: CGFloat = 0
     @State private var color: Color = .black
     @State private var hasLoadedInitialJoke = false
@@ -23,7 +23,7 @@ struct JokeView: View {
             Spacer()
             
             ZStack {
-                if let joke = jokeViewModel.joke {
+                if let joke = sharedVM.jokeViewModel.joke {
                     JokeCard(joke: joke)
                         .offset(x: offset)
                         .rotationEffect(.degrees(Double(offset) * 0.1))
@@ -88,10 +88,9 @@ struct JokeView: View {
             .padding(.horizontal)
         }
         .onAppear {
-            // Only load initial joke if we haven't loaded one yet
             if !hasLoadedInitialJoke {
                 Task {
-                    await jokeViewModel.getNewJoke()
+                    await sharedVM.jokeViewModel.getNewJoke()
                     hasLoadedInitialJoke = true
                 }
             }
@@ -116,9 +115,9 @@ struct JokeView: View {
     private func handleLike() {
         withAnimation {
             offset = 500
-            jokeViewModel.likeJoke()
+            sharedVM.jokeViewModel.likeJoke()
             Task {
-                await jokeViewModel.getNewJoke()
+                await sharedVM.jokeViewModel.getNewJoke()
                 offset = 0
                 color = .black
             }
@@ -128,9 +127,9 @@ struct JokeView: View {
     private func handleDislike() {
         withAnimation {
             offset = -500
-            jokeViewModel.dislikeJoke()
+            sharedVM.jokeViewModel.dislikeJoke()
             Task {
-                await jokeViewModel.getNewJoke()
+                await sharedVM.jokeViewModel.getNewJoke()
                 offset = 0
                 color = .black
             }
@@ -138,7 +137,7 @@ struct JokeView: View {
     }
     
     private func shareJoke() {
-        let text = jokeViewModel.shareJoke()
+        let text = sharedVM.jokeViewModel.shareJoke()
         let activityViewController = UIActivityViewController(
             activityItems: [text],
             applicationActivities: nil
@@ -151,7 +150,7 @@ struct JokeView: View {
         }
     }
 }
-
+/*
 struct JokeCard: View {
     let joke: Joke
     
@@ -178,3 +177,5 @@ struct JokeCard: View {
 #Preview {
     JokeView()
 }
+
+*/
