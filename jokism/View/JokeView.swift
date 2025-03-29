@@ -9,80 +9,162 @@ import SwiftUI
 
 struct JokeView: View {
     @StateObject private var jokeViewModel = JokeViewModel()
+    @State private var offset: CGFloat = 0
+    @State private var color: Color = .black
     
     var body: some View {
-        VStack{
+        VStack {
+            Text("Jokism")
+                .font(.system(.largeTitle, design: .monospaced))
+                .bold()
+                .padding(.top, 20)
+                
             Spacer()
             
-            if let joke = jokeViewModel.joke{
-                Text(joke.content)
-                    .font(.title2)
-                    .padding()
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .gesture(
-                        DragGesture()
-                            .onEnded { gesture in
-                                if gesture.translation.width > 100{
-                                    Task{ await jokeViewModel.getNewJoke() }
+            ZStack {
+                if let joke = jokeViewModel.joke {
+                    JokeCard(joke: joke)
+                        .offset(x: offset)
+                        .rotationEffect(.degrees(Double(offset) * 0.1))
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    offset = gesture.translation.width
+                                    // Change color based on drag direction
+                                    withAnimation {
+                                        color = offset > 0 ? .green : .red
+                                    }
                                 }
-                            }
-                    )
-                
-            }else{
-                ProgressView("Cooking up some jokes...")
+                                .onEnded { gesture in
+                                    withAnimation {
+                                        handleSwipe(width: gesture.translation.width)
+                                    }
+                                }
+                        )
+                } else {
+                    ProgressView("Loading jokes...")
+                }
             }
+            
             Spacer()
             
-            
-            HStack{
-                
-                Button(action: {
-                    jokeViewModel.likeJoke()
-                }, label: {
-                    Image(systemName: "heart.fill")
-                        .font(.title)
+            // Action Buttons
+            HStack(spacing: 25) {
+                // Dislike Button
+                Button(action: { handleDislike() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.red)
-                        .padding()
+                        .padding(20)
                         .background(Color(.systemGray6))
                         .clipShape(Circle())
                         .shadow(radius: 5)
-                        
-                })
+                }
                 
-                //Spacer()
-                
-                Button(action: {
-                    shareJoke()
-                },label: {
+                // Share Button
+                Button(action: { shareJoke() }) {
                     Image(systemName: "square.and.arrow.up")
-                        .font(.title)
+                        .font(.system(size: 24, weight: .medium))
                         .foregroundColor(.blue)
-                        .padding()
+                        .padding(20)
                         .background(Color(.systemGray6))
                         .clipShape(Circle())
                         .shadow(radius: 5)
-                    
-                })
+                }
+                
+                // Like Button
+                Button(action: { handleLike() }) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.green)
+                        .padding(20)
+                        .background(Color(.systemGray6))
+                        .clipShape(Circle())
+                        .shadow(radius: 5)
+                }
             }
-            .padding(.horizontal,50)
+            .padding(.bottom, 40)
+            .padding(.horizontal)
         }
-        .onAppear{
-            Task{ await jokeViewModel.getNewJoke() }
+        .onAppear {
+            Task { await jokeViewModel.getNewJoke() }
         }
     }
     
-    private func shareJoke(){
-        let text = jokeViewModel.shareJoke()
-        let activityViewContorller = UIActivityViewController(activityItems: [text], applicationActivities: nil)
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene{
-            scene.windows.first?.rootViewController?.present(activityViewContorller, animated: true, completion: nil)
+    private func handleSwipe(width: CGFloat) {
+        let swipeThreshold: CGFloat = 150
+        
+        if width > swipeThreshold {
+            offset = 500
+            handleLike()
+        } else if width < -swipeThreshold {
+            offset = -500
+            handleDislike()
+        } else {
+            offset = 0
+            color = .black
         }
     }
-           
+    
+    private func handleLike() {
+        withAnimation {
+            offset = 500
+            jokeViewModel.likeJoke()
+            Task {
+                await jokeViewModel.getNewJoke()
+                offset = 0
+                color = .black
+            }
+        }
+    }
+    
+    private func handleDislike() {
+        withAnimation {
+            offset = -500
+            Task {
+                await jokeViewModel.getNewJoke()
+                offset = 0
+                color = .black
+            }
+        }
+    }
+    
+    private func shareJoke() {
+        let text = jokeViewModel.shareJoke()
+        let activityViewController = UIActivityViewController(
+            activityItems: [text],
+            applicationActivities: nil
+        )
+        
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let windowScene = scene.windows.first?.rootViewController {
+            activityViewController.popoverPresentationController?.sourceView = windowScene.view
+            windowScene.present(activityViewController, animated: true)
+        }
+    }
+}
+
+struct JokeCard: View {
+    let joke: Joke
+    
+    var body: some View {
+        VStack {
+            Text(joke.content)
+                .font(.title2)
+                .padding(25)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+                .frame(height: 300)
+                .background(Color(.systemBackground))
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
+                )
+                .shadow(radius: 5)
+        }
+        .padding(.horizontal)
+    }
 }
 
 #Preview {
