@@ -11,11 +11,12 @@ struct JokeView: View {
     @StateObject private var jokeViewModel = JokeViewModel()
     @State private var offset: CGFloat = 0
     @State private var color: Color = .black
+    @State private var hasLoadedInitialJoke = false
     
     var body: some View {
         VStack {
             Text("Jokism")
-                .font(.system(.largeTitle, design: .monospaced))
+                .font(.system(.headline, design: .monospaced))
                 .bold()
                 .padding(.top, 20)
                 
@@ -41,7 +42,7 @@ struct JokeView: View {
                                     }
                                 }
                         )
-                } else {
+                } else if !hasLoadedInitialJoke {
                     ProgressView("Loading jokes...")
                 }
             }
@@ -87,7 +88,13 @@ struct JokeView: View {
             .padding(.horizontal)
         }
         .onAppear {
-            Task { await jokeViewModel.getNewJoke() }
+            // Only load initial joke if we haven't loaded one yet
+            if !hasLoadedInitialJoke {
+                Task {
+                    await jokeViewModel.getNewJoke()
+                    hasLoadedInitialJoke = true
+                }
+            }
         }
     }
     
@@ -121,6 +128,7 @@ struct JokeView: View {
     private func handleDislike() {
         withAnimation {
             offset = -500
+            jokeViewModel.dislikeJoke()
             Task {
                 await jokeViewModel.getNewJoke()
                 offset = 0
