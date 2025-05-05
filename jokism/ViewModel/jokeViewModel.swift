@@ -54,18 +54,39 @@ class JokeViewModel: ObservableObject {
             print("Error fetching joke: \(error)")
         }
     }
-    
+    // Add to your JokeViewModel.swift
+
+    @MainActor
+    func updateFavorites(_ newFavorites: [Joke]) {
+        // Use proper state management
+        withAnimation {
+            self.favorites = newFavorites
+            saveFavorites()
+            
+            // Force an objectWillChange notification
+            self.objectWillChange.send()
+        }
+    }
+
     func likeJoke() {
         guard let currentJoke = joke else { return }
         
         // Add to favorites only if not already there
         if !favorites.contains(where: { $0.id == currentJoke.id }) {
-            favorites.append(currentJoke)
-            saveFavorites()
+            // Update favorites with animation
+            withAnimation {
+                favorites.append(currentJoke)
+                saveFavorites()
+                
+                // Force an objectWillChange notification
+                self.objectWillChange.send()
+            }
         }
         
         joke = nil // Clear the current joke
     }
+    
+  
     
     func dislikeJoke() {
         guard let currentJoke = joke else { return }
@@ -131,10 +152,5 @@ class JokeViewModel: ObservableObject {
         favorites.removeAll { $0.id == joke.id }
         saveFavorites()
     }
-    
-    @MainActor
-    func updateFavorites(_ newFavorites: [Joke]) {
-        favorites = newFavorites
-        saveFavorites()
-    }
+   
 }

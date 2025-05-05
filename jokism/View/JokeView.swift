@@ -205,6 +205,23 @@ struct JokeShareCard: View {
     
     var body: some View {
         VStack(spacing: 20) {
+            // Header
+            HStack {
+                Text("Jokism")
+                    .font(.system(.headline, design: .monospaced))
+                    .bold()
+                
+                Spacer()
+                
+                Image(systemName: "face.smiling.fill")
+                    .font(.title3)
+                    .foregroundColor(.yellow)
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 20)
+            
+            Spacer()
+            
             // The joke content
             VStack {
                 Text(joke.content)
@@ -223,7 +240,9 @@ struct JokeShareCard: View {
             }
             .padding(.horizontal, 40)
             
-            // The app logo and attribution
+            Spacer()
+            
+            // The app attribution
             HStack {
                 Text("Shared from Jokism")
                     .font(.footnote)
@@ -234,11 +253,11 @@ struct JokeShareCard: View {
                 Image(systemName: "face.smiling")
                     .foregroundColor(.yellow)
             }
-            .padding(.horizontal, 40)
+            .padding(.bottom, 20)
+            .padding(.horizontal, 20)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: 1080, height: 1920)
         .background(Color(.systemGray6))
-        .edgesIgnoringSafeArea(.all)
     }
 }
 
