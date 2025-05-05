@@ -115,38 +115,23 @@ struct JokeListItem: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(joke.content)
-                .lineLimit(3)
-                .font(.system(.body))
-                .padding(.vertical, 4)
+            HStack {
+                Text("😂")
+                    .font(.title2)
+                    .padding(.trailing, 8)
+                
+                Text(joke.content)
+                    .lineLimit(3)
+                    .font(.system(.body))
+                    .padding(.vertical, 4)
+            }
         }
+        .padding(.vertical, 4)
     }
 }
 
-struct JokeCard: View {
-    let joke: Joke
-    
-    var body: some View {
-        VStack {
-            ScrollView {
-                Text(joke.content)
-                    .font(.title2)
-                    .padding(25)
-                    .multilineTextAlignment(.center)
-                    .frame(maxWidth: .infinity)
-                    .background(Color(.systemBackground))
-                    .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color(.systemGray4), lineWidth: 1)
-                    )
-                    .shadow(radius: 5)
-            }
-            .frame(maxHeight: UIScreen.main.bounds.height * 0.6)
-        }
-        .padding(.horizontal)
-    }
-}
+
+// Updated FavoriteJokeDetailView in FavoraitesJokeView.swift
 
 struct FavoriteJokeDetailView: View {
     let joke: Joke
@@ -162,34 +147,64 @@ struct FavoriteJokeDetailView: View {
                     Spacer()
                         .frame(height: 20)
                     
-                    JokeCard(joke: joke)
+                    // Nice display of the joke
+                    VStack {
+                        Text(joke.content)
+                            .font(.title2)
+                            .padding(25)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .background(Color(.systemBackground))
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                            )
+                            .shadow(radius: 5)
+                    }
+                    .padding(.horizontal)
                     
                     Spacer()
-                        .frame(height: 20)
+                        .frame(height: 40)
                     
-                    HStack(spacing: 25) {
+                    // Action buttons in a nice layout
+                    HStack(spacing: 30) {
+                        // Delete button
                         Button(action: {
                             onDelete()
                         }) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(.red)
-                                .padding(20)
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle())
-                                .shadow(radius: 5)
+                            VStack {
+                                Image(systemName: "trash")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(.red)
+                                    .padding(20)
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+                                    .shadow(radius: 5)
+                                
+                                Text("Delete")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
                         
+                        // Share button
                         Button(action: {
                             showingShareSheet = true
                         }) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 24, weight: .medium))
-                                .foregroundColor(.blue)
-                                .padding(20)
-                                .background(Color(.systemGray6))
-                                .clipShape(Circle())
-                                .shadow(radius: 5)
+                            VStack {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.blue)
+                                    .padding(20)
+                                    .background(Color(.systemGray6))
+                                    .clipShape(Circle())
+                                    .shadow(radius: 5)
+                                
+                                Text("Share")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
                     }
                     .padding(.bottom, 40)
@@ -206,26 +221,31 @@ struct FavoriteJokeDetailView: View {
                 }
             }
             .sheet(isPresented: $showingShareSheet) {
-                ShareSheet(items: ["\"\(joke.content)\" - via Jokism App 😆"])
+                // Use our new sharing approach with an image
+                ShareJokeImageView(joke: joke)
             }
         }
     }
 }
 
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
+// A view that creates and shares a joke image
+struct ShareJokeImageView: UIViewControllerRepresentable {
+    let joke: Joke
     
     func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(
-            activityItems: items,
+        let renderer = ImageRenderer(content: JokeShareCard(joke: joke))
+        renderer.proposedSize = ProposedViewSize(width: 1080, height: 1920)
+        
+        let image = renderer.uiImage ?? UIImage()
+        let activityViewController = UIActivityViewController(
+            activityItems: [image],
             applicationActivities: nil
         )
-        return controller
+        return activityViewController
     }
     
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
-
 #Preview {
     FavoraitesJokeView()
 }
